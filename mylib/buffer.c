@@ -5,9 +5,14 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <string.h>
+
+#ifdef _MSC_VER
+#define strdup _strdup
+#else
+#include <unistd.h>
 #include <zlib.h>
+#endif
 
 typedef struct {
   unsigned char *buffer;

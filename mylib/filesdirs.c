@@ -8,9 +8,16 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <string.h>
+
+#ifdef _MSC_VER
+#include "../msvc2019/dirent.h"
+#define STDOUT_FILENO 1
+#define strdup _strdup
+#else
 #include <unistd.h>
 #include <dirent.h>
-#include <string.h>
+#endif
 
 int file_getsize_fd(int n)
 {
@@ -45,7 +52,7 @@ int file2buffer(char *s, unsigned char **buf, int *len)
   *buf = NULL;
   *len = -1;
 
-  if ((fd = open(s,O_RDONLY)) == -1) {
+  if ((fd = open(s,O_RDONLY|O_BINARY)) == -1) {
     fprintf(stderr,"file2buffer: could not open file %s\n",s);
     return 0;
   }

@@ -10,8 +10,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <string.h>
+
+#ifdef _MSC_VER
+#else
+#include <unistd.h>
+#endif
 
 #include "mylib/filesdirs.h"
 #include "mylib/buffer.h"

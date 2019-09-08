@@ -10,9 +10,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <string.h>
 
+#ifdef _MSC_VER
+#define STDOUT_FILENO 1
+#else
+#include <unistd.h>
+#endif
 
 typedef struct {
   unsigned char *buffer;
@@ -32,24 +36,32 @@ int file_getsize_fd(int n)
 // Read the whole file to a buffer.
 int file2buffer(char *s, unsigned char **buf, int *len)
 {
-  int fd,l;
+  FILE *f;
+  long l;
   unsigned char *b;
 
   *buf = NULL;
   *len = -1;
 
-  if ((fd = open(s,O_RDONLY)) == -1) {
+  f = fopen(s, "r");
+  if (!f) {
     fprintf(stderr,"file2buffer: could not open file %s\n",s);
     return 0;
   }
-  l = file_getsize_fd(fd);
+
+  fseek(f, 0, SEEK_END);
+  l = ftell(f);
+  fseek(f, 0, SEEK_SET);
   b = (unsigned char *)malloc((l+10)*sizeof(unsigned char));
-  if (read(fd,b,l) != l) {
+  l = fread(b, 1, l, f);
+ 
+  if (ferror(f)) {
     fprintf(stderr,"file2buffer: could not read file %s\n",s);
     free(b);
     return 0;
   }
-  close(fd);
+
+  fclose(f);
   b[l] = '\0';
   *len = l;
   *buf = b;
@@ -128,8 +140,8 @@ int main(int ac, char **av)
   unsigned char uc;
   int fd;
 
-  if (ac < 2) {
-    fprintf(stderr,"Usage: sptcompiler <file>\n");
+  if (ac < 3) {
+    fprintf(stderr,"Usage: sptcompiler <inputtxtfile> <outputsptfile>\n");
     exit(-1);
   }
 
@@ -138,8 +150,14 @@ int main(int ac, char **av)
   b = buffer_new(buffer,len);
 
   s = (char *)malloc(10000*sizeof(char));
+  
+  fd = open(av[2], O_CREAT | O_WRONLY | O_TRUNC | O_BINARY, 0644);
 
-  fd = STDOUT_FILENO;
+  if (fd == -1) {
+    fprintf(stderr, "could not write to file\n");
+	exit(-1);
+  }
+
   while (buffer_eof2(b) != 1) {
     buffer_scan_tokenstring(b,s);
     if (strcmp(s,"section") == 0) {
