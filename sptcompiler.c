@@ -151,7 +151,11 @@ int main(int ac, char **av)
 
   s = (char *)malloc(10000*sizeof(char));
   
+#ifdef __linux__
+  fd = open(av[2], O_CREAT | O_WRONLY | O_TRUNC, 0644);
+#else
   fd = open(av[2], O_CREAT | O_WRONLY | O_TRUNC | O_BINARY, 0644);
+#endif
 
   if (fd == -1) {
     fprintf(stderr, "could not write to file\n");

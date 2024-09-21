@@ -52,7 +52,11 @@ int file2buffer(char *s, unsigned char **buf, int *len)
   *buf = NULL;
   *len = -1;
 
+#ifdef __linux__
+  if ((fd = open(s,O_RDONLY)) == -1) {
+#else
   if ((fd = open(s,O_RDONLY|O_BINARY)) == -1) {
+#endif
     fprintf(stderr,"file2buffer: could not open file %s\n",s);
     return 0;
   }

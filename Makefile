@@ -4,8 +4,9 @@
 CC=gcc -O2 -Wall
 CFLAGS= 
 FLAGS=
-LIBS= -lm -ljpeg -lpng
-LD_LIBRARY_PATH=
+LIBS= -lm -ljpeg -lpng12
+LD_LIBRARY_PATH=/usr/lib/libpng12.so
+INCLUDE_PATH=-I/usr/include/libpng12/
 
 OBJS_SP= mylib/image.o mylib/buffer.o mylib/filesdirs.o sptparser.o
 OBJS_SC= sptcompiler.o
@@ -13,14 +14,17 @@ OBJS_SDCM= sptdrawcompositemap.o
 
 all:: sptparser sptcompiler
 
-sptparser: $(OBJS_SP)
-	$(CC) $(FLAGS) -o sptparser $(OBJS_SP) $(LIBS)
+sptparser: compile_libs $(OBJS_SP)
+	$(CC) $(FLAGS) $(INCLUDE_PATH) -o sptparser $(OBJS_SP) $(LIBS)
 
 sptcompiler: $(OBJS_SC)
-	$(CC) $(FLAGS) -o sptcompiler $(OBJS_SC) $(LIBS)
+	$(CC) $(FLAGS) $(INCLUDE_PATH) -o sptcompiler $(OBJS_SC) $(LIBS)
 
 sptdrawcompositemap: $(OBJS_SDCM)
-	$(CC) $(FLAGS) -o sptdrawcompositemap $(OBJS_SDCM) $(LIBS)
+	$(CC) $(FLAGS) $(INCLUDE_PATH) -o sptdrawcompositemap $(OBJS_SDCM) $(LIBS)
+
+compile_libs:
+	cd mylib && make
 
 clean:
 	rm -f *.o

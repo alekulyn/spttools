@@ -39,6 +39,8 @@ The first and last control points have x = 0 and x = 1 respectively.
 Other x values are in increasing order: x1 <= x2 <= ... <= xn.
 Tangent vector is a unit vector: u^2 + v^2 = 1.
 
+4. Not compatible with libpng > 1.2.*
+
 TODO:
 
 1. The byte and short integer numbers may have problems with
